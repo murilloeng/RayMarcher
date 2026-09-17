@@ -1,0 +1,45 @@
+{
+	"version": "0.2.0",
+	"configurations":
+	[
+		{
+			"args": [],
+			"MIMode": "gdb",
+			"type": "cppdbg",
+			"environment": [],
+			"request": "launch",
+			"stopAtEntry": false,
+			"name": "gdb - debug",
+			"externalConsole": false,
+			"cwd": "${workspaceFolder}",
+			"program": "${workspaceFolder}/dist/debug/ray_marcher.out",
+			"setupCommands":
+			[
+				{
+					"text": "-enable-pretty-printing",
+					"description": "Enable pretty-printing for gdb"
+				}
+			]
+		},
+		{
+			"args": [],
+			"MIMode": "gdb",
+			"type": "cppdbg",
+			"environment": [],
+			"request": "launch",
+			"stopAtEntry": false,
+			"name": "gdb - release",
+			"externalConsole": false,
+			"cwd": "${workspaceFolder}",
+			"program": "${workspaceFolder}/dist/release/ray_marcher.out",
+			"setupCommands":
+			[
+				{
+					"description": "Enable pretty-printing for gdb",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				}
+			]
+		}
+	]
+}
