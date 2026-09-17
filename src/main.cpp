@@ -8,9 +8,13 @@
 
 //Ray Marcher
 #include "RayMarcher/inc/API.hpp"
+#include "RayMarcher/inc/VAO.hpp"
 #include "RayMarcher/inc/Loader.hpp"
+#include "RayMarcher/inc/Shader.hpp"
 
 //static
+static VAO* vao;
+static Shader* shader;
 static GLFWwindow* window;
 
 //callbacks
@@ -28,7 +32,8 @@ static void callback_key(GLFWwindow* window, int32_t key, int32_t scancode, int3
 	}
 }
 
-int main(void)
+//setup
+static void setup_glfw(void)
 {
 	//library
 	if(glfwInit() != GLFW_TRUE)
@@ -50,9 +55,29 @@ int main(void)
 	glfwMakeContextCurrent(window);
 	//v-sync
 	glfwSwapInterval(0);
-	//functions
+	//OpenGL API
 	load_functions();
+	Shader::add_path("shd/");
+}
+static void setup_scene(void)
+{
+	vao = new VAO;
+	shader = new Shader("base");
+}
 
+//cleanup
+static void cleanup(void)
+{
+	delete vao;
+	delete shader;
+	glfwDestroyWindow(window);
+	glfwTerminate();
+}
+
+int main(void)
+{
+	setup_glfw();
+	setup_scene();
 	//callbacks
 	glfwSetKeyCallback(window, callback_key);
 	//draw loop
@@ -60,9 +85,12 @@ int main(void)
 	{
 		glfwPollEvents();
 		glClear(GL_COLOR_BUFFER_BIT);
-		
+		vao->bind();
+		shader->bind();
+		glDrawArraysInstanced(GL_TRIANGLES, 0, 3, 2);
 		glfwSwapBuffers(window);
 	}
 	//return
+	cleanup();
 	return EXIT_SUCCESS;
 }
