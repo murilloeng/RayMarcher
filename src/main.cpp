@@ -9,11 +9,13 @@
 //Ray Marcher
 #include "RayMarcher/inc/API.hpp"
 #include "RayMarcher/inc/VAO.hpp"
+#include "RayMarcher/inc/UBO.hpp"
 #include "RayMarcher/inc/Loader.hpp"
 #include "RayMarcher/inc/Shader.hpp"
 
 //static
 static VAO* vao;
+static UBO* ubo;
 static Shader* shader;
 static GLFWwindow* window;
 
@@ -61,14 +63,21 @@ static void setup_glfw(void)
 }
 static void setup_scene(void)
 {
+	//data
 	vao = new VAO;
+	ubo = new UBO;
 	shader = new Shader("base");
+	const float ubo_data[] = {0, 0, 0};
+	//ubo
+	ubo->bind_base(0);
+	ubo->transfer(3 * sizeof(float), ubo_data);
 }
 
 //cleanup
 static void cleanup(void)
 {
 	delete vao;
+	delete ubo;
 	delete shader;
 	glfwDestroyWindow(window);
 	glfwTerminate();
@@ -83,11 +92,11 @@ int main(void)
 	//draw loop
 	while(!glfwWindowShouldClose(window))
 	{
-		glfwPollEvents();
-		glClear(GL_COLOR_BUFFER_BIT);
 		vao->bind();
 		shader->bind();
-		glDrawArraysInstanced(GL_TRIANGLES, 0, 3, 2);
+		glfwPollEvents();
+		glClear(GL_COLOR_BUFFER_BIT);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glfwSwapBuffers(window);
 	}
 	//return
