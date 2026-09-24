@@ -91,21 +91,35 @@ void main(void)
 	const float v = h / min(w, h) * (2 * gl_FragCoord.y / h - 1);
 	//scene
 	Scene scene;
+	scene.m_counter_planes = 1;
 	scene.m_counter_spheres = 1;
+	scene.m_planes[0].m_point = vec3(0, -1, 0);
+	scene.m_planes[0].m_normal = vec3(0, 1, 0);
+	scene.m_planes[0].m_material.m_color = vec3(1, 0, 0);
 	scene.m_spheres[0].m_radius = 0.5;
-	scene.m_spheres[0].m_center = vec3(0, 0, 0);
+	scene.m_spheres[0].m_center = vec3(0);
 	scene.m_spheres[0].m_material.m_color = vec3(0, 1, 0);
 	//background
 	fragment = vec4((3 - v) / 4, (3 - v) / 4, 1, 1);
 	//fragment
 	hit_point.m_status = false;
 	vec3 ray_position = vec3(0, 0, 1);
-	light.m_direction = vec3(cos(camera.m_time), 0, sin(camera.m_time));
+	light.m_direction = vec3(cos(camera.m_time), sin(camera.m_time), 0);
 	const vec3 ray_direction = normalize(vec3(u, v, 0) - ray_position);
-	for(uint iteration = 0; iteration < ray_marcher.m_iteration_max && !hit_point.m_status; iteration++)
+	for(uint iteration = 0; iteration < ray_marcher.m_iteration_max; iteration++)
 	{
 		float d = ray_marcher.m_distance_max;
-		for(uint sphere_id = 0; sphere_id < scene.m_counter_spheres; sphere_id++)
+		for(uint plane_id = 0; plane_id < scene.m_counter_planes && !hit_point.m_status; plane_id++)
+		{
+			d = min(d, sdPlane(ray_position, scene.m_planes[plane_id]));
+			if(d < ray_marcher.m_distance_min)
+			{
+				hit_point.m_status = true;
+				hit_point.m_normal = scene.m_planes[plane_id].m_normal;
+				hit_point.m_material = scene.m_planes[plane_id].m_material;
+			}
+		}
+		for(uint sphere_id = 0; sphere_id < scene.m_counter_spheres && !hit_point.m_status; sphere_id++)
 		{
 			d = min(d, sdSphere(ray_position, scene.m_spheres[sphere_id]));
 			if(d < ray_marcher.m_distance_min)
@@ -116,7 +130,7 @@ void main(void)
 			}
 		}
 		ray_position += d * ray_direction;
-		if(d > ray_marcher.m_distance_max) break;
+		if(hit_point.m_status || d > ray_marcher.m_distance_max) break;
 	}
 	if(hit_point.m_status) fragment.rgb = dot(hit_point.m_normal, -light.m_direction) * hit_point.m_material.m_color;
 }
