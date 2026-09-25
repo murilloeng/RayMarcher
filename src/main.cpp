@@ -7,14 +7,19 @@
 
 int main(void)
 {
-	//data
-	ray_marcher::rasterizer::Scene scene;
-	//scene
-	scene.setup();
-	scene.draw();
-	scene.write_image("test.ppm");
-	//engine
-	// ray_marcher::interface::Engine().start();
+	try
+	{
+		//data
+		ray_marcher::rasterizer::Scene scene;
+		//scene
+		scene.setup();
+		scene.draw();
+		scene.write_image("test.ppm", true);
+	}
+	catch(const std::exception& exception)
+	{
+		printf("%s\n", exception.what());
+	}
 	//return
 	return EXIT_SUCCESS;
 }

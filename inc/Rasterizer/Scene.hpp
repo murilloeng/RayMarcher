@@ -21,8 +21,8 @@ namespace ray_marcher
 			void setup(void);
 		
 			//write
-			void write_image(const char*) const;
-			void write_video(const char*) const;
+			void write_image(const char*, bool = false) const;
+			void write_video(const char*, bool = false) const;
 		
 			//data
 			uint32_t m_width;
