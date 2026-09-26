@@ -22,9 +22,9 @@ struct Camera
 };
 struct RayMarcher
 {
-	uint m_iteration_max;
 	float m_distance_min;
 	float m_distance_max;
+	uint m_iteration_max;
 };
 struct Material
 {
@@ -57,8 +57,7 @@ struct Light
 struct Scene
 {
 	Light m_light;
-	uint m_counter_planes;
-	uint m_counter_spheres;
+	uvec2 m_counter;
 	Plane[MAX_PLANES] m_planes;
 	Sphere[MAX_SPHERES] m_spheres;
 };
@@ -83,13 +82,35 @@ float sdSphere(vec3 p, Sphere sphere)
 }
 
 //Ray Marching
+bool shadow(vec3 ray_position, vec3 ray_direction)
+{
+	float ray_length = 0;
+	for(uint iteration = 0; iteration < ray_marcher.m_iteration_max; iteration++)
+	{
+		float d = ray_marcher.m_distance_max;
+		for(uint plane_id = 0; plane_id < scene.m_counter[0]; plane_id++)
+		{
+			d = min(d, sdPlane(ray_position, scene.m_planes[plane_id]));
+			if(d < ray_marcher.m_distance_min) return true;
+		}
+		for(uint sphere_id = 0; sphere_id < scene.m_counter[1]; sphere_id++)
+		{
+			d = min(d, sdSphere(ray_position, scene.m_spheres[sphere_id]));
+			if(d < ray_marcher.m_distance_min) return true;
+		}
+		ray_length += d;
+		ray_position += d * ray_direction;
+		if(ray_length > ray_marcher.m_distance_max) return false;
+	}
+	return false;
+}
 bool ray_march(vec3 ray_position, vec3 ray_direction, out HitData hit_data)
 {
 	float ray_length = 0;
 	for(uint iteration = 0; iteration < ray_marcher.m_iteration_max; iteration++)
 	{
 		float d = ray_marcher.m_distance_max;
-		for(uint plane_id = 0; plane_id < scene.m_counter_planes; plane_id++)
+		for(uint plane_id = 0; plane_id < scene.m_counter[0]; plane_id++)
 		{
 			d = min(d, sdPlane(ray_position, scene.m_planes[plane_id]));
 			if(d < ray_marcher.m_distance_min)
@@ -100,13 +121,13 @@ bool ray_march(vec3 ray_position, vec3 ray_direction, out HitData hit_data)
 				return true;
 			}
 		}
-		for(uint sphere_id = 0; sphere_id < scene.m_counter_planes; sphere_id++)
+		for(uint sphere_id = 0; sphere_id < scene.m_counter[1]; sphere_id++)
 		{
 			d = min(d, sdSphere(ray_position, scene.m_spheres[sphere_id]));
 			if(d < ray_marcher.m_distance_min)
 			{
 				hit_data.m_position = ray_position;
-				hit_data.m_material = scene.m_planes[sphere_id].m_material;
+				hit_data.m_material = scene.m_spheres[sphere_id].m_material;
 				hit_data.m_normal = normalize(ray_position - scene.m_spheres[sphere_id].m_center);
 				return true;
 			}
@@ -124,6 +145,7 @@ void main(void)
 	//data
 	const float w = screen.m_width;
 	const float h = screen.m_height;
+	const float d = ray_marcher.m_distance_min;
 	const float u = w / min(w, h) * (2 * gl_FragCoord.x / w - 1);
 	const float v = h / min(w, h) * (2 * gl_FragCoord.y / h - 1);
 	//camera
@@ -133,9 +155,11 @@ void main(void)
 	//background
 	fragment = vec4((3 - v) / 4, (3 - v) / 4, 1, 1);
 	//fragment
-	// HitData hit_data;
-	// if(ray_march(camera.m_position, normalize(u * t1 + v * t2 - camera.m_focal_distance * t3), hit_data))
-	// {
-	// 	fragment.rgb = hit_data.m_material.m_color;
-	// }
+	HitData hit_data;
+	if(ray_march(camera.m_position, normalize(u * t1 + v * t2 - camera.m_focal_distance * t3), hit_data))
+	{
+		float ds = max(0, -dot(scene.m_light.m_direction, hit_data.m_normal));
+		if(ds != 0 && shadow(hit_data.m_position + 2 * d * hit_data.m_normal, -scene.m_light.m_direction)) ds = 0;
+		fragment.rgb = scene.m_light.m_ambient * hit_data.m_material.m_color + ds * scene.m_light.m_diffuse * hit_data.m_material.m_color;
+	}
 }

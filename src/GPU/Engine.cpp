@@ -38,11 +38,17 @@ namespace ray_marcher
 				m_shader->bind();
 				glfwPollEvents();
 				m_camera.m_time = (float) glfwGetTime();
+				update_scene();
+				m_ubo->transfer(0, sizeof(Scene), &m_scene);
 				m_ubo->transfer(sizeof(Scene) + sizeof(Screen), sizeof(Camera), &m_camera);
 				glClear(GL_COLOR_BUFFER_BIT);
 				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 				glfwSwapBuffers(m_window);
 			}
+		}
+		void Engine::update_scene(void)
+		{
+			return;
 		}
 		
 		//setup

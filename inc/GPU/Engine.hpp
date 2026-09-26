@@ -6,11 +6,8 @@
 //Ray Marcher
 #include "RayMarcher/inc/GPU/VAO.hpp"
 #include "RayMarcher/inc/GPU/UBO.hpp"
-#include "RayMarcher/inc/GPU/Scene.hpp"
+#include "RayMarcher/inc/GPU/Data.hpp"
 #include "RayMarcher/inc/GPU/Shader.hpp"
-#include "RayMarcher/inc/GPU/Camera.hpp"
-#include "RayMarcher/inc/GPU/Screen.hpp"
-#include "RayMarcher/inc/GPU/RayMarcher.hpp"
 
 namespace ray_marcher
 {
@@ -27,6 +24,7 @@ namespace ray_marcher
 		
 			//start
 			void start(void);
+			virtual void update_scene(void);
 		
 			//setup
 			void setup_glfw(void);
