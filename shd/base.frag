@@ -30,9 +30,8 @@ struct Material
 {
 	vec3 m_color;
 };
-struct HitPoint
+struct HitData
 {
-	bool m_status;
 	vec3 m_normal;
 	vec3 m_position;
 	Material m_material;
@@ -51,10 +50,13 @@ struct Sphere
 };
 struct Light
 {
+	vec3 m_ambient;
+	vec3 m_diffuse;
 	vec3 m_direction;
 };
 struct Scene
 {
+	Light m_light;
 	uint m_counter_planes;
 	uint m_counter_spheres;
 	Plane[MAX_PLANES] m_planes;
@@ -64,6 +66,7 @@ struct Scene
 //uniforms
 layout(std140, binding = 0) uniform uniform_data
 {
+	Scene scene;
 	Screen screen;
 	Camera camera;
 	RayMarcher ray_marcher;
@@ -79,58 +82,60 @@ float sdSphere(vec3 p, Sphere sphere)
 	return length(p - sphere.m_center) - sphere.m_radius;
 }
 
-//main
-void main(void)
+//Ray Marching
+bool ray_march(vec3 ray_position, vec3 ray_direction, out HitData hit_data)
 {
-	//data
-	Light light;
-	HitPoint hit_point;
-	const float w = screen.m_width;
-	const float h = screen.m_height;
-	const float u = w / min(w, h) * (2 * gl_FragCoord.x / w - 1);
-	const float v = h / min(w, h) * (2 * gl_FragCoord.y / h - 1);
-	//scene
-	Scene scene;
-	scene.m_counter_planes = 1;
-	scene.m_counter_spheres = 1;
-	scene.m_planes[0].m_point = vec3(0, -1, 0);
-	scene.m_planes[0].m_normal = vec3(0, 1, 0);
-	scene.m_planes[0].m_material.m_color = vec3(1, 0, 0);
-	scene.m_spheres[0].m_radius = 0.5;
-	scene.m_spheres[0].m_center = vec3(0);
-	scene.m_spheres[0].m_material.m_color = vec3(0, 1, 0);
-	//background
-	fragment = vec4((3 - v) / 4, (3 - v) / 4, 1, 1);
-	//fragment
-	hit_point.m_status = false;
-	vec3 ray_position = vec3(0, 0, 1);
-	light.m_direction = vec3(cos(camera.m_time), sin(camera.m_time), 0);
-	const vec3 ray_direction = normalize(vec3(u, v, 0) - ray_position);
+	float ray_length = 0;
 	for(uint iteration = 0; iteration < ray_marcher.m_iteration_max; iteration++)
 	{
 		float d = ray_marcher.m_distance_max;
-		for(uint plane_id = 0; plane_id < scene.m_counter_planes && !hit_point.m_status; plane_id++)
+		for(uint plane_id = 0; plane_id < scene.m_counter_planes; plane_id++)
 		{
 			d = min(d, sdPlane(ray_position, scene.m_planes[plane_id]));
 			if(d < ray_marcher.m_distance_min)
 			{
-				hit_point.m_status = true;
-				hit_point.m_normal = scene.m_planes[plane_id].m_normal;
-				hit_point.m_material = scene.m_planes[plane_id].m_material;
+				hit_data.m_position = ray_position;
+				hit_data.m_normal = scene.m_planes[plane_id].m_normal;
+				hit_data.m_material = scene.m_planes[plane_id].m_material;
+				return true;
 			}
 		}
-		for(uint sphere_id = 0; sphere_id < scene.m_counter_spheres && !hit_point.m_status; sphere_id++)
+		for(uint sphere_id = 0; sphere_id < scene.m_counter_planes; sphere_id++)
 		{
 			d = min(d, sdSphere(ray_position, scene.m_spheres[sphere_id]));
 			if(d < ray_marcher.m_distance_min)
 			{
-				hit_point.m_status = true;
-				hit_point.m_normal = normalize(ray_position - scene.m_spheres[sphere_id].m_center);
-				hit_point.m_material = scene.m_spheres[sphere_id].m_material;
+				hit_data.m_position = ray_position;
+				hit_data.m_material = scene.m_planes[sphere_id].m_material;
+				hit_data.m_normal = normalize(ray_position - scene.m_spheres[sphere_id].m_center);
+				return true;
 			}
 		}
+		ray_length += d;
 		ray_position += d * ray_direction;
-		if(hit_point.m_status || d > ray_marcher.m_distance_max) break;
+		if(ray_length > ray_marcher.m_distance_max) return false;
 	}
-	if(hit_point.m_status) fragment.rgb = dot(hit_point.m_normal, -light.m_direction) * hit_point.m_material.m_color;
+	return false;
+}
+
+//main
+void main(void)
+{
+	//data
+	const float w = screen.m_width;
+	const float h = screen.m_height;
+	const float u = w / min(w, h) * (2 * gl_FragCoord.x / w - 1);
+	const float v = h / min(w, h) * (2 * gl_FragCoord.y / h - 1);
+	//camera
+	const vec3 t2 = camera.m_up;
+	const vec3 t3 = normalize(camera.m_position - camera.m_look_at);
+	const vec3 t1 = cross(t2, t3);
+	//background
+	fragment = vec4((3 - v) / 4, (3 - v) / 4, 1, 1);
+	//fragment
+	// HitData hit_data;
+	// if(ray_march(camera.m_position, normalize(u * t1 + v * t2 - camera.m_focal_distance * t3), hit_data))
+	// {
+	// 	fragment.rgb = hit_data.m_material.m_color;
+	// }
 }
