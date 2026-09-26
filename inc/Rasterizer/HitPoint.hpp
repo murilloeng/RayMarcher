@@ -1,5 +1,8 @@
 #pragma once
 
+//std
+#include <cstdint>
+
 //Ray Marcher
 #include "RayMarcher/inc/Rasterizer/Vec3.hpp"
 #include "RayMarcher/inc/Rasterizer/Material.hpp"
@@ -8,20 +11,19 @@ namespace ray_marcher
 {
 	namespace rasterizer
 	{
-		class Object
+		class HitPoint
 		{
 		public:
 			//constructor
-			Object(void);
+			HitPoint(void);
 
 			//destructor
-			virtual ~Object(void);
-
-			//sdf
-			virtual double sdf(const Vec3&) const = 0;
-			virtual Vec3 normal(const Vec3&) const = 0;
+			~HitPoint(void);
 
 			//data
+			bool m_status;
+			Vec3 m_normal;
+			Vec3 m_position;
 			Material m_material;
 		};
 	}
