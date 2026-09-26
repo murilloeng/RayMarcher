@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 //Ray Marcher
+#include "RayMarcher/inc/Rasterizer/Color.hpp"
 #include "RayMarcher/inc/Rasterizer/Scene.hpp"
 
 namespace ray_marcher
@@ -21,7 +22,7 @@ namespace ray_marcher
 		{
 			delete[] m_buffer;
 		}
-		
+
 		//draw
 		void Scene::draw(void)
 		{
@@ -29,12 +30,13 @@ namespace ray_marcher
 			{
 				for(uint32_t j = 0; j < m_width; j++)
 				{
+					//data
 					// const double u = 2 * double(j) / (m_width - 1) - 1;
-					// const double v = 1 - 2 * double(i) / (m_height - 1);
-					// //background
-					// m_buffer[3 * m_width * i + 3 * j + 0] = 255 * i / m_height;
-					// m_buffer[3 * m_width * i + 3 * j + 1] = 0;
-					// m_buffer[3 * m_width * i + 3 * j + 2] = 0;
+					const double v = 1 - 2 * double(i) / (m_height - 1);
+					uint8_t* buffer = m_buffer + 3 * m_width * i + 3 * j;
+					//background
+					Color((3 - v) / 4, (3 - v) / 4, 1).apply(buffer);
+					
 				}
 			}
 		}
@@ -43,7 +45,7 @@ namespace ray_marcher
 			delete[] m_buffer;
 			m_buffer = new uint8_t[3 * m_width * m_height];
 		}
-		
+
 		//write
 		void Scene::write_image(const char* path, bool open) const
 		{

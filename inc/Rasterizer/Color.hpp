@@ -18,8 +18,9 @@ namespace ray_marcher
 			//destructor
 			~Color(void);
 
-			//apply
+			//buffer
 			void apply(uint8_t*) const;
+			void increment(uint8_t*) const;
 
 			//operators
 			Color& operator*=(double);
@@ -30,6 +31,9 @@ namespace ray_marcher
 			Color operator/(double) const;
 			Color operator+(const Color&) const;
 			Color operator-(const Color&) const;
+
+			double& operator[](uint32_t);
+			const double& operator[](uint32_t) const;
 
 			friend Color operator*(double, const Color&);
 
