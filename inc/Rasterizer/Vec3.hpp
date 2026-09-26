@@ -23,6 +23,8 @@ namespace ray_marcher
 			Vec3& operator+=(const Vec3&);
 			Vec3& operator-=(const Vec3&);
 			
+			Vec3 operator+(void) const;
+			Vec3 operator-(void) const;
 			Vec3 operator+(const Vec3&) const;
 			Vec3 operator-(const Vec3&) const;
 

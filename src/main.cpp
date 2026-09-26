@@ -19,9 +19,9 @@ int main(void)
 			new ray_marcher::rasterizer::Sphere, new ray_marcher::rasterizer::Sphere, new ray_marcher::rasterizer::Sphere
 		};
 		//plane
-		plane->m_point = {0, -1, 0};
-		plane->m_normal = {0, +1, 0};
-		plane->m_material.m_color = {1, 0, 0};
+		plane->m_material.m_color = 0.9;
+		plane->m_point = {+0.0, -0.2, +0.0};
+		plane->m_normal = {+0.0, +1.0, +0.0};
 		//sphere
 		spheres[0]->m_radius = 0.1;
 		spheres[1]->m_radius = 0.1;
@@ -29,9 +29,9 @@ int main(void)
 		spheres[0]->m_center = {-0.4, 0, 0};
 		spheres[1]->m_center = {+0.0, 0, 0};
 		spheres[2]->m_center = {+0.4, 0, 0};
-		spheres[0]->m_material.m_color = {0, 1, 0};
-		spheres[1]->m_material.m_color = {0, 1, 0};
-		spheres[2]->m_material.m_color = {0, 1, 0};
+		spheres[0]->m_material.m_color = {1, 0, 0};
+		spheres[1]->m_material.m_color = {1, 0, 0};
+		spheres[2]->m_material.m_color = {1, 0, 0};
 		//objects
 		scene.m_objects.push_back(plane);
 		scene.m_objects.push_back(spheres[0]);

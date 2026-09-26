@@ -47,7 +47,7 @@ exe : $(out)
 
 $(out) : $(obj)
 	@mkdir -p $(dir $@)
-	@$(CXX) $(LNKFLAGS) -o $(out) $(obj) $(LIBS)
+	@$(CXX) $(LNKFLAGS) -fopenmp -o $(out) $(obj) $(LIBS)
 	@echo 'executable - $(mode): $@'
 
 build/$(prof_dir)$(mode)/%.o : src/%.cpp build/$(prof_dir)$(mode)/%.d

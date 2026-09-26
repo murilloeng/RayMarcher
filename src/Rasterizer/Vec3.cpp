@@ -54,6 +54,14 @@ namespace ray_marcher
 			return *this;
 		}
 
+		Vec3 Vec3::operator+(void) const
+		{
+			return *this;
+		}
+		Vec3 Vec3::operator-(void) const
+		{
+			return Vec3(*this) *= -1;
+		}
 		Vec3 Vec3::operator+(const Vec3& vector) const
 		{
 			return Vec3(*this) += vector;

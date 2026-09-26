@@ -69,6 +69,13 @@ namespace ray_marcher
 			m_channels[2] -= color.m_channels[2];
 			return *this;
 		}
+		Color& Color::operator*=(const Color& color)
+		{
+			m_channels[0] *= color.m_channels[0];
+			m_channels[1] *= color.m_channels[1];
+			m_channels[2] *= color.m_channels[2];
+			return *this;
+		}
 
 		Color Color::operator/(double s) const
 		{
@@ -81,6 +88,10 @@ namespace ray_marcher
 		Color Color::operator-(const Color& color) const
 		{
 			return Color(*this) -= color;
+		}
+		Color Color::operator*(const Color& color) const
+		{
+			return Color(*this) *= color;
 		}
 
 		double& Color::operator[](uint32_t index)

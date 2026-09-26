@@ -27,10 +27,12 @@ namespace ray_marcher
 			Color& operator/=(double);
 			Color& operator+=(const Color&);
 			Color& operator-=(const Color&);
+			Color& operator*=(const Color&);
 
 			Color operator/(double) const;
 			Color operator+(const Color&) const;
 			Color operator-(const Color&) const;
+			Color operator*(const Color&) const;
 
 			double& operator[](uint32_t);
 			const double& operator[](uint32_t) const;

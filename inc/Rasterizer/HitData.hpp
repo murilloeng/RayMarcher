@@ -11,17 +11,16 @@ namespace ray_marcher
 {
 	namespace rasterizer
 	{
-		class HitPoint
+		class HitData
 		{
 		public:
 			//constructor
-			HitPoint(void);
+			HitData(void);
 
 			//destructor
-			~HitPoint(void);
+			~HitData(void);
 
 			//data
-			bool m_status;
 			Vec3 m_normal;
 			Vec3 m_position;
 			Material m_material;

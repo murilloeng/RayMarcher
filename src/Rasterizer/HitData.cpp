@@ -1,18 +1,18 @@
 //Ray Marcher
-#include "RayMarcher/inc/Rasterizer/HitPoint.hpp"
+#include "RayMarcher/inc/Rasterizer/HitData.hpp"
 
 namespace ray_marcher
 {
 	namespace rasterizer
 	{
 		//constructor
-		HitPoint::HitPoint(void) : m_status{false}
+		HitData::HitData(void)
 		{
 			return;
 		}
 		
 		//destructor
-		HitPoint::~HitPoint(void)
+		HitData::~HitData(void)
 		{
 			return;
 		}
